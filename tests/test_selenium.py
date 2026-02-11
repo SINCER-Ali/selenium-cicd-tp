@@ -89,3 +89,48 @@ class TestCalculator:
 
 if __name__ == "__main__":
     pytest.main(["-v", "--html=report.html", "--self-contained-html"])
+
+def test_page_load_time(self, driver):
+    """Test 5: Mesurer le temps de chargement de la page"""
+    start_time = time.time()
+    file_path = os.path.abspath("../src/index.html")
+    driver.get(f"file://{file_path}")
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "calculator"))
+    )
+    load_time = time.time() - start_time
+    print(f"Temps de chargement: {load_time:.2f} secondes")
+    assert load_time < 3.0, f"Page trop lente à charger: {load_time:.2f}s"
+
+def test_decimal_addition(self, driver):
+    file_path = os.path.abspath("../src/index.html")
+    driver.get(f"file://{file_path}")
+    driver.find_element(By.ID, "num1").send_keys("2.5")
+    driver.find_element(By.ID, "num2").send_keys("1.2")
+    select = Select(driver.find_element(By.ID, "operation"))
+    select.select_by_value("add")
+    driver.find_element(By.ID, "calculate").click()
+    result = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "result"))
+    )
+    assert "Résultat: 3.7" in result.text
+
+def test_negative_subtraction(self, driver):
+    file_path = os.path.abspath("../src/index.html")
+    driver.get(f"file://{file_path}")
+    driver.find_element(By.ID, "num1").send_keys("-5")
+    driver.find_element(By.ID, "num2").send_keys("3")
+    select = Select(driver.find_element(By.ID, "operation"))
+    select.select_by_value("subtract")
+    driver.find_element(By.ID, "calculate").click()
+    result = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "result"))
+    )
+    assert "Résultat: -8" in result.text
+
+def test_result_box_style(self, driver):
+    file_path = os.path.abspath("../src/index.html")
+    driver.get(f"file://{file_path}")
+    result_box = driver.find_element(By.ID, "result")
+    assert result_box.is_displayed()
+    assert "f0f0f0" in result_box.value_of_css_property("background-color")
